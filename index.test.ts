@@ -203,5 +203,15 @@ describe("range", () => {
       )
     });
   });
+
+  describe("pairs", () => {
+    it("generate pairs of key values", () => {
+      same(
+        range({a: 1, b: 2}).pairs().array(),
+        [["a", 1], ["b", 2]]
+      )
+
+    });
+  });
 });
 

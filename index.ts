@@ -6,7 +6,6 @@ interface Next<K, V> {
 
 type TapFunction<K, V> = (value: V, key: K) => any;
 type NextFunction<K, V> = () => Next<K, V>;
-
 type IndexFunction<K, V, Result> = (value: V, index: K) => Result;
 
 interface IndexGenerator<K, V> {
@@ -36,6 +35,9 @@ interface IndexGenerator<K, V> {
 
   // collect sequence key/values into dictionary
   dict(): { [key: string]: V }
+
+  // Transform into sequence of key-value pairs
+  pairs(): IndexGenerator<number, [K, V]>
 
   [Symbol.iterator]: () => {
     next: NextFunction<K, V>;
@@ -168,6 +170,28 @@ class BaseIterator<K, V> implements IndexGenerator<K, V> {
     return new BaseIterator(next);
   }
 
+  pairs(): IndexGenerator<number, [K, V]> {
+    let i = 0;
+    const gen = this;
+    function next(): Next<number, [K, V]> {
+      const result = gen.next();
+      if (result.done) {
+        return result as any;
+      }
+
+      const nextResult = {
+        index: i,
+        value: [result.index, result.value] as [K, V],
+        done: false,
+      }
+
+      i++;
+
+      return nextResult;
+    }
+    return new BaseIterator(next);
+  }
+
   next() {
     return this._next();
   }
@@ -176,6 +200,8 @@ class BaseIterator<K, V> implements IndexGenerator<K, V> {
     return { next: this._next }
   }
 }
+
+
 
 
 type MapFunction<K, V, Result> = (value: V, key: K) => Result;
