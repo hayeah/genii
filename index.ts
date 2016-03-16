@@ -18,7 +18,7 @@ interface IndexGenerator<K, V> {
 
   limit(size: number): IndexGenerator<K, V>;
   offset(offset: number): IndexGenerator<K, V>;
-  tap(f: TapFunction<K,V>): IndexGenerator<K, V>;
+  tap(f: TapFunction<K, V>): IndexGenerator<K, V>;
 
   // collect values into array
   array(): V[];
@@ -140,11 +140,11 @@ class BaseIterator<K, V> implements IndexGenerator<K, V> {
     return new BaseIterator(next);
   }
 
-  tap(f: TapFunction<K,V>): IndexGenerator<K, V> {
+  tap(f: TapFunction<K, V>): IndexGenerator<K, V> {
     const gen = this;
-    function next(): Next<K,V> {
+    function next(): Next<K, V> {
       const result = gen.next();
-      if(result.done) {
+      if (result.done) {
         return result;
       }
 
@@ -260,7 +260,8 @@ function arrayGenerator<T>(array: T[]): IndexGenerator<number, T> {
   return new BaseIterator(next);
 }
 
-function numberRange(start: number, end: number, step: number = 1) {
+// Imitate Python's range contract
+function numberRange(start: number, end: number, step: number) {
   let i = 0;
   let cur = start;
 
@@ -298,7 +299,7 @@ function numberRange(start: number, end: number, step: number = 1) {
     return next;
   }
 
-  const next = end > start ? inc : dec;
+  const next = step > 0 ? inc : dec;
 
   return new BaseIterator(next);
 }
@@ -307,29 +308,30 @@ function numberRange(start: number, end: number, step: number = 1) {
 export function range<T>(dict: { [key: string]: T }): IndexGenerator<string, T>;
 export function range<T>(arg: T[]): IndexGenerator<number, T>;
 export function range(rangeEnd: number): IndexGenerator<number, number>;
+export function range(rangeStart: number, rangeEnd: number): IndexGenerator<number, number>;
+export function range(rangeStart: number, rangeEnd: number, step: number): IndexGenerator<number, number>;
 export function range(arg: any, ...rest: any[]): any {
   if (arg instanceof Array) {
     return arrayGenerator(arg);
   }
 
   if (typeof arg === "number") {
-    // 1 argument
-    let start: number;
-    let end: number;
-    let step: number;
-    if (arg > 0) {
-      start = 0;
+
+    let start: number = arg;
+    let end: number = arguments[1];
+    let step: number = arguments[2] || 1;
+
+    // 1 argument case
+    if (end === undefined) {
       end = arg;
-      step = 1;
-    } else {
       start = 0;
-      end = arg;
-      step = -1;
     }
 
-    // todo: 2 arguments
+    if (step === 0) {
+      throw new Error(`range step cannot be zero: range(${start}, ${end}, ${end})`);
+    }
 
-    return numberRange(0, end, step);
+    return numberRange(start, end, step);
   }
 
   // default to iterating through object properties

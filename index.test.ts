@@ -31,6 +31,43 @@ describe("range", () => {
         done: true,
       });
     });
+
+    it("[3,6)", () => {
+      same(
+        range(3, 6).array(),
+        [3, 4, 5]
+      );
+    });
+
+    it("[0,10), by 3", () => {
+      same(
+        range(0, 10, 3).array(),
+        [0, 3, 6, 9]
+      );
+    });
+
+    it("[0,-10)", () => {
+      same(
+        range(0, -10).array(),
+        []
+      );
+    });
+
+    describe("decrementing sequence", () => {
+      it("[0,10) by -3", () => {
+        same(
+          range(0, 10, -3).array(),
+          []
+        );
+      });
+
+      it("[0,-10) by -3", () => {
+        same(
+          range(0, -10, -3).array(),
+          [0, -3, -6, -9]
+        );
+      });
+    });
   });
 
   describe("value collection", () => {
@@ -156,13 +193,13 @@ describe("range", () => {
       const acc = [];
 
       // throw away the result, we just care about side-effect
-      range(3).tap((v,k) => {
-        acc.push([k,v*10]);
+      range(3).tap((v, k) => {
+        acc.push([k, v * 10]);
       }).array();
 
       same(
         acc,
-        [[0,0], [1,10], [2,20]]
+        [[0, 0], [1, 10], [2, 20]]
       )
     });
   });
