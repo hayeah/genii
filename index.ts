@@ -10,19 +10,31 @@ type NextFunction<K, V> = () => Next<K, V>;
 type IndexFunction<K, V, Result> = (value: V, index: K) => Result;
 
 interface IndexGenerator<K, V> {
+  // Next item.
   next(): Next<K, V>;
+
+  // Filter the sequence.
   filter(fn: FilterFunction<K, V>): IndexGenerator<K, V>;
+
+  // Transform the sequence.
   map<Result>(fn: MapFunction<K, V, Result>): IndexGenerator<K, Result>;
 
+  // Transform the index of the sequence.
   reindex<Result>(fn: IndexFunction<K, V, Result>): IndexGenerator<Result, V>;
 
+  // Restrict the length of the sequence.
   limit(size: number): IndexGenerator<K, V>;
+
+  // Shift the sequence.
   offset(offset: number): IndexGenerator<K, V>;
+
+  // Allow side-effect while iterating through the sequence.
   tap(f: TapFunction<K, V>): IndexGenerator<K, V>;
 
-  // collect values into array
+  // collect sequence values into array
   array(): V[];
-  // collect key/values into dictionary
+
+  // collect sequence key/values into dictionary
   dict(): { [key: string]: V }
 
   [Symbol.iterator]: () => {
