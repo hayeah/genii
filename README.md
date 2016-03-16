@@ -73,11 +73,15 @@ Iterating through an object with `range`:
 for(let value of range({a: 1, b: 2, c: 3}).map(i => i * 10)) {
   console.log(value);
 }
+
+// 10
+// 20
+// 30
 ```
 
 # Creating Dictionaries
 
-The `dict` makes it easy to create dictionaries.  To convert an array to a dictionary (using the array index as key):
+The `dict` method makes it easy to create dictionaries.  To convert an array to a dictionary (using the array index as key):
 
 ```js
 range([0,1,2]).dict()
