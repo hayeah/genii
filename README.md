@@ -1,3 +1,14 @@
+
+```
+npm install genii
+```
+
+There is just one function:
+
+```
+import { range } from "genii";
+```
+
 # Iterator Utilities
 
 The `range` function creates a lazy generator sequence:
