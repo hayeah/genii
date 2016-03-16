@@ -132,5 +132,23 @@ describe("range", () => {
       );
     });
   });
+
+  describe("limit", () => {
+    it("limit the number of items in sequence", () => {
+      same(
+        range(100).limit(3).array(),
+        [0, 1, 2]
+      )
+    });
+  });
+
+  describe("offset", () => {
+    it("discard the initial n items in sequence", () => {
+      same(
+        range(5).offset(2).array(),
+        [2, 3, 4]
+      )
+    });
+  });
 });
 

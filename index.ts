@@ -1,9 +1,3 @@
-// TODO: tap, take,
-
-class ObjectGenerator {
-
-}
-
 interface Next<K, V> {
   done: boolean;
   value?: V;
@@ -19,7 +13,10 @@ interface IndexGenerator<K, V> {
   filter(fn: FilterFunction<K, V>): IndexGenerator<K, V>;
   map<Result>(fn: MapFunction<K, V, Result>): IndexGenerator<K, Result>;
 
-  reindex<Result>(fn: IndexFunction<K, V, Result>): IndexGenerator<Result, V>
+  reindex<Result>(fn: IndexFunction<K, V, Result>): IndexGenerator<Result, V>;
+
+  limit(size: number): IndexGenerator<K, V>;
+  offset(offset: number): IndexGenerator<K, V>;
 
   // collect values into array
   array(): V[];
@@ -86,6 +83,57 @@ class BaseIterator<K, V> implements IndexGenerator<K, V> {
         done: false
       };
     }
+
+    return new BaseIterator(next);
+  }
+
+  limit(size: number): IndexGenerator<K, V> {
+    const gen = this;
+    let i = 0;
+
+    function next(): Next<K, V> {
+      if(i >= size) {
+        return { done: true }
+      }
+
+      const result = gen.next();
+
+      if(result.done) {
+        return result;
+      }
+
+      i++;
+
+      return result;
+    }
+
+    return new BaseIterator(next);
+  }
+
+  offset(offset: number): IndexGenerator<K, V> {
+    const gen = this;
+    let i = 0;
+
+    function next(): Next<K, V> {
+      if(i < offset) {
+        while(true) {
+          const result = gen.next();
+
+          if(result.done) {
+            return result;
+          }
+
+          i++;
+
+          if(i >= offset) {
+            break;
+          }
+        }
+      }
+
+      return gen.next();
+    }
+
 
     return new BaseIterator(next);
   }
