@@ -150,5 +150,21 @@ describe("range", () => {
       )
     });
   });
+
+  describe("tap", () => {
+    it("attach side-effect to sequence", () => {
+      const acc = [];
+
+      // throw away the result, we just care about side-effect
+      range(3).tap((v,k) => {
+        acc.push([k,v*10]);
+      }).array();
+
+      same(
+        acc,
+        [[0,0], [1,10], [2,20]]
+      )
+    });
+  });
 });
 

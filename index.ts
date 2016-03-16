@@ -4,6 +4,7 @@ interface Next<K, V> {
   index?: K;
 }
 
+type TapFunction<K, V> = (value: V, key: K) => any;
 type NextFunction<K, V> = () => Next<K, V>;
 
 type IndexFunction<K, V, Result> = (value: V, index: K) => Result;
@@ -17,6 +18,7 @@ interface IndexGenerator<K, V> {
 
   limit(size: number): IndexGenerator<K, V>;
   offset(offset: number): IndexGenerator<K, V>;
+  tap(f: TapFunction<K,V>): IndexGenerator<K, V>;
 
   // collect values into array
   array(): V[];
@@ -42,7 +44,7 @@ class BaseIterator<K, V> implements IndexGenerator<K, V> {
 
   array(): V[] {
     let acc: V[] = [];
-    for(let value of this) {
+    for (let value of this) {
       acc.push(value);
     }
 
@@ -52,9 +54,9 @@ class BaseIterator<K, V> implements IndexGenerator<K, V> {
   dict(): { [key: string]: V } {
     let acc: { [key: string]: V } = {};
 
-    while(true) {
+    while (true) {
       const { value, index, done } = this.next();
-      if(done) {
+      if (done) {
         break;
       }
 
@@ -72,7 +74,7 @@ class BaseIterator<K, V> implements IndexGenerator<K, V> {
 
     function next(): Next<Result, V> {
       const { index, value, done } = self.next();
-      if(done) {
+      if (done) {
         return { done };
       }
 
@@ -92,13 +94,13 @@ class BaseIterator<K, V> implements IndexGenerator<K, V> {
     let i = 0;
 
     function next(): Next<K, V> {
-      if(i >= size) {
+      if (i >= size) {
         return { done: true }
       }
 
       const result = gen.next();
 
-      if(result.done) {
+      if (result.done) {
         return result;
       }
 
@@ -115,17 +117,17 @@ class BaseIterator<K, V> implements IndexGenerator<K, V> {
     let i = 0;
 
     function next(): Next<K, V> {
-      if(i < offset) {
-        while(true) {
+      if (i < offset) {
+        while (true) {
           const result = gen.next();
 
-          if(result.done) {
+          if (result.done) {
             return result;
           }
 
           i++;
 
-          if(i >= offset) {
+          if (i >= offset) {
             break;
           }
         }
@@ -134,6 +136,22 @@ class BaseIterator<K, V> implements IndexGenerator<K, V> {
       return gen.next();
     }
 
+
+    return new BaseIterator(next);
+  }
+
+  tap(f: TapFunction<K,V>): IndexGenerator<K, V> {
+    const gen = this;
+    function next(): Next<K,V> {
+      const result = gen.next();
+      if(result.done) {
+        return result;
+      }
+
+      const { index, value } = result;
+      f(value, index);
+      return result;
+    }
 
     return new BaseIterator(next);
   }
