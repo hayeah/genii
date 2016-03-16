@@ -1,16 +1,13 @@
 {
-  "name": "gen",
-  "version": "1.0.0",
+  "name": "genii",
+  "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
   "directories": {
     "test": "test"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
+  "keywords": ["generator", "iteration", "functional programming"],
+  "author": "Howard Yeh",
   "license": "ISC",
   "devDependencies": {
     "chai": "^3.5.0",
